@@ -1,0 +1,137 @@
+:host {
+  --sidebar-bg: #111827;
+  --sidebar-hover: #1f2937;
+  --accent-color: #3b82f6; /* Blue Accent */
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: var(--sidebar-bg);
+  color: var(--text-main);
+  transition: var(--transition);
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+/* Header/Logo Section */
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.logo-icon {
+  font-size: 24px;
+  color: var(--accent-color);
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  transition: var(--transition);
+}
+
+/* List Styling */
+.nav-list {
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.nav-list li {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 15px;
+  margin-bottom: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-muted);
+  position: relative;
+}
+
+.nav-list li i {
+  font-size: 1.3rem;
+  min-width: 30px;
+  text-align: center;
+}
+
+.nav-list li:hover {
+  background: var(--sidebar-hover);
+  color: var(--text-main);
+}
+
+/* Active State */
+.nav-list li.active {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent-color);
+}
+
+.nav-list li.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  height: 20px;
+  width: 4px;
+  background: var(--accent-color);
+  border-radius: 0 4px 4px 0;
+}
+
+/* ====== COLLAPSED STATE ====== */
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .text {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Professional Tooltip */
+.sidebar.collapsed li:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 90px;
+  background: #1f2937;
+  color: #fff;
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ====== RESPONSIVE (Mobile) ====== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 0; /* تختفي تماماً في الموبايل */
+    transform: translateX(-100%);
+  }
+
+  /* إذا كانت مفتوحة في الموبايل تظهر كـ Overlay */
+  .sidebar:not(.collapsed) {
+    width: 260px;
+    transform: translateX(0);
+  }
+}

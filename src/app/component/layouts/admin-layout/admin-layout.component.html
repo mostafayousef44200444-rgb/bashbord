@@ -1,0 +1,15 @@
+<div class="app-wrapper" [class.sidebar-collapsed]="!isOpen">
+  <app-navbarsid class="sidebar-container"></app-navbarsid>
+
+  <main class="main-content">
+    <app-navbar class="top-navbar"></app-navbar>
+    
+    <section class="page-container">
+      <div class="page-card">
+        <router-outlet></router-outlet>
+      </div>
+    </section>
+  </main>
+
+  <div class="mobile-overlay" *ngIf="isOpen" (click)="toggleSidebar()"></div>
+</div>

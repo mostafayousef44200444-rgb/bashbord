@@ -1,0 +1,159 @@
+:root {
+  --primary: #2563eb;
+  --nav-bg: #ffffff;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar {
+  height: 70px;
+  background: var(--nav-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* التنسيقات العامة */
+.navbar-left, .navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.logo {
+  height: 22px;
+  max-width: 120px;
+  object-fit: contain;
+}
+
+/* شريط البحث */
+.navbar-center {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 1.5rem;
+  transition: var(--transition);
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  color: #9ca3af;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 15px 10px 42px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  outline: none;
+  transition: var(--transition);
+}
+
+.search-input:focus {
+  background: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* البروفايل */
+.avatar-img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #f3f4f6;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* أزرار الأيقونات */
+.icon-btn {
+  background: none;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #4b5563;
+  cursor: pointer;
+  position: relative;
+  transition: var(--transition);
+}
+
+.icon-btn:hover {
+  background: #f3f4f6;
+  color: var(--primary);
+}
+
+/* الـ Badge */
+.badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* ====== RESPONSIVE DESIGN ====== */
+
+.hide-desktop { display: none; }
+
+@media (max-width: 992px) {
+  .navbar-center { max-width: 350px; }
+  .user-meta { display: none; }
+}
+
+@media (max-width: 768px) {
+  .navbar-center {
+    display: none; /* إخفاء البحث في الموبايل بشكل افتراضي */
+  }
+
+  .navbar-center.mobile-visible {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    margin: 0;
+    padding: 0 1rem;
+    z-index: 1001;
+    max-width: none;
+  }
+
+  .hide-desktop { display: flex; }
+  .hide-mobile { display: none; }
+  
+  .back-btn {
+    background: none;
+    border: none;
+    margin-right: 10px;
+    font-size: 1.2rem;
+  }
+
+  .navbar { height: 60px; padding: 0 0.8rem; }
+}

@@ -1,0 +1,36 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <button class="icon-btn" (click)="toggleSidebar()">
+      <i class="bi bi-list"></i>
+    </button>
+    <img src="assets/logo-01.png" class="logo" alt="Logo" />
+  </div>
+
+  <div class="navbar-center">
+    <div class="search-container">
+      <i class="bi bi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Search..." />
+    </div>
+  </div>
+
+  <div class="navbar-right">
+    <button class="icon-btn search-mobile-trigger">
+      <i class="bi bi-search"></i>
+    </button>
+
+    <button class="icon-btn">
+      <i class="bi bi-bell-fill"></i>
+      <span class="badge">3</span>
+    </button>
+
+    <div class="profile-section">
+       <i class="bi bi-person-circle profile-icon"></i>
+       <span class="user-name hide-sm">Ahmed</span> </div>
+
+    <div class="divider hide-sm"></div>
+
+    <button class="icon-btn logout-btn" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</nav>

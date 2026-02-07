@@ -1,0 +1,13 @@
+:host {
+  .form-control, .form-select {
+    border-width: 2px;
+  }
+
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    &:hover {
+      background-color: darken(#007bff, 10%);
+    }
+  }
+}

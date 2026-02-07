@@ -1,0 +1,97 @@
+<div class="container mt-4">
+  <h2 class="mb-4">إدارة الطلبات</h2>
+
+  <table class="table table-striped table-bordered table-hover table-responsive">
+    <thead class="table-dark">
+      <tr>
+        <th>#Order ID</th>
+        <th>المستخدم</th>
+        <th>عدد المنتجات</th>
+        <th>الإجمالي</th>
+        <th>الحالة</th>
+        <th>تاريخ الإنشاء</th>
+        <th>إجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of orders">
+        <td>{{ order._id }}</td>
+        <td>{{ order.user?.email || 'N/A' }}</td>
+        <td>{{ order.items.length }}</td>
+        <td>{{ order.total | currency:'EGP':'symbol' }}</td>
+        <td>
+          <span class="badge" 
+                [ngClass]="{
+                  'bg-secondary': order.status === 'pending',
+                  'bg-info': order.status === 'processing',
+                  'bg-primary': order.status === 'shipped',
+                  'bg-success': order.status === 'delivered',
+                  'bg-danger': order.status === 'cancelled'
+                }">
+            {{ order.status | titlecase }}
+          </span>
+        </td>
+        <td>{{ order.createdAt | date:'short' }}</td>
+        <td>
+          <button class="btn btn-sm btn-info me-1" (click)="viewOrder(order)">تفاصيل</button>
+          <button class="btn btn-sm btn-success me-1" (click)="updateStatus(order, 'processing')" [disabled]="order.status==='processing' || order.status==='delivered' || order.status==='cancelled'">معالجة</button>
+          <button class="btn btn-sm btn-primary me-1" (click)="updateStatus(order, 'shipped')" [disabled]="order.status!=='processing'">شحن</button>
+          <button class="btn btn-sm btn-success me-1" (click)="updateStatus(order, 'delivered')" [disabled]="order.status!=='shipped'">تم التسليم</button>
+          <button class="btn btn-sm btn-danger" (click)="updateStatus(order, 'cancelled')" [disabled]="order.status==='delivered' || order.status==='cancelled'">إلغاء</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal تفاصيل الطلب -->
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="orderModalLabel">تفاصيل الطلب</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h6>معلومات المستخدم</h6>
+          <p><strong>البريد:</strong> {{ selectedOrder?.user?.email }}</p>
+          <p><strong>الحالة:</strong> {{ selectedOrder?.status | titlecase }}</p>
+          <p><strong>الإجمالي:</strong> {{ selectedOrder?.total | currency:'EGP':'symbol' }}</p>
+
+          <h6>العناصر</h6>
+          <table class="table table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>المنتج</th>
+                <th>الحجم</th>
+                <th>الكمية</th>
+                <th>السعر</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of selectedOrder?.items">
+                <td>{{ item.name }}</td>
+                <td>{{ item.size }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price | currency:'EGP':'symbol' }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h6>عنوان الشحن</h6>
+          <p>
+            {{ selectedOrder?.shippingAddress?.fullName }}<br>
+            {{ selectedOrder?.shippingAddress?.street }}, {{ selectedOrder?.shippingAddress?.city }}, {{ selectedOrder?.shippingAddress?.country }}<br>
+            الهاتف: {{ selectedOrder?.shippingAddress?.phone }}
+          </p>
+
+          <h6>الدفع</h6>
+          <p>طريقة الدفع: {{ selectedOrder?.payment?.method }}</p>
+          <p>ملاحظات: {{ selectedOrder?.payment?.notes || 'لا توجد' }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

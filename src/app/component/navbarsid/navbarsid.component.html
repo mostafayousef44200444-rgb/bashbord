@@ -1,0 +1,17 @@
+<nav class="sidebar" [class.collapsed]="!isOpen">
+  <div class="sidebar-header">
+    <i class="bi bi-cpu-fill logo-icon"></i>
+    <span class="logo-text">MyBrand</span>
+  </div>
+
+  <ul class="nav-list">
+    <li *ngFor="let item of navItems" 
+        [routerLink]="item.path" 
+        routerLinkActive="active" 
+        [routerLinkActiveOptions]="{exact: true}"
+        [attr.data-tooltip]="item.label">
+      <i [class]="item.icon"></i>
+      <span class="text">{{ item.label }}</span>
+    </li>
+  </ul>
+</nav>
