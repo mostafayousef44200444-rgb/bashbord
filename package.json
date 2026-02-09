@@ -1,13 +1,12 @@
 {
   "name": "bashbord",
-   "version": "0.0.0",
+  "version": "0.0.0",
   "scripts": {
-  "start": "ng serve",      
-  "build": "node ./node_modules/@angular/cli/bin/ng build --output-path=dist/frontend/browser",
-  "watch": "ng build --watch --configuration development",
-  "test": "ng test"
-}
-,
+    "start": "ng serve",
+    "build": "node ./node_modules/@angular/cli/bin/ng build --output-path=dist/frontend/browser",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.2.0",
@@ -20,6 +19,7 @@
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
     "aos": "^2.3.4",
+    "chart.js": "^4.5.1",
     "cloudinary": "^2.8.0",
     "gsap": "^3.13.0",
     "jwt-decode": "^4.0.0",
