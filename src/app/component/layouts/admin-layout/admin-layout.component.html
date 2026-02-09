@@ -1,5 +1,7 @@
-<div class="app-wrapper" [class.sidebar-collapsed]="!isOpen">
-  <app-navbarsid class="sidebar-container"></app-navbarsid>
+<div class="app-wrapper" [class.sidebar-collapsed]="!(isOpen$ | async)">
+  <app-navbarsid class="sidebar-container" [class.mobile-open]="(isOpen$ | async)"></app-navbarsid>
+
+  <div class="mobile-overlay" *ngIf="(isOpen$ | async)" (click)="closeSidebar()"></div>
 
   <main class="main-content">
     <app-navbar class="top-navbar"></app-navbar>
@@ -10,6 +12,4 @@
       </div>
     </section>
   </main>
-
-  <div class="mobile-overlay" *ngIf="isOpen" (click)="toggleSidebar()"></div>
 </div>
