@@ -130,6 +130,9 @@
   .navbar-center {
     display: none; /* إخفاء البحث في الموبايل بشكل افتراضي */
   }
+  .navbar-right{
+     display: none;
+  }
 
   .navbar-center.mobile-visible {
     display: flex;
