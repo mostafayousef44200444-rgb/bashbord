@@ -6,7 +6,7 @@
 
 .navbar {
   height: 70px;
-  background: var(--nav-bg);
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
