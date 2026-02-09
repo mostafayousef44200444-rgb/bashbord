@@ -16,7 +16,7 @@
     <tbody>
       <tr *ngFor="let order of orders">
         <td>{{ order._id }}</td>
-        <td>{{ order.user?.email || 'N/A' }}</td>
+        <td>{{ order['user']?.email || 'N/A' }}</td>
         <td>{{ order.items.length }}</td>
         <td>{{ order.total | currency:'EGP':'symbol' }}</td>
         <td>
@@ -31,7 +31,7 @@
             {{ order.status | titlecase }}
           </span>
         </td>
-        <td>{{ order.createdAt | date:'short' }}</td>
+        <td>{{ order['createdAt'] | date:'short' }}</td>
         <td>
           <button class="btn btn-sm btn-info me-1" (click)="viewOrder(order)">تفاصيل</button>
           <button class="btn btn-sm btn-success me-1" (click)="updateStatus(order, 'processing')" [disabled]="order.status==='processing' || order.status==='delivered' || order.status==='cancelled'">معالجة</button>
@@ -51,11 +51,11 @@
           <h5 class="modal-title" id="orderModalLabel">تفاصيل الطلب</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" *ngIf="selectedOrder">
           <h6>معلومات المستخدم</h6>
-          <p><strong>البريد:</strong> {{ selectedOrder?.user?.email }}</p>
-          <p><strong>الحالة:</strong> {{ selectedOrder?.status | titlecase }}</p>
-          <p><strong>الإجمالي:</strong> {{ selectedOrder?.total | currency:'EGP':'symbol' }}</p>
+          <p><strong>البريد:</strong> {{ selectedOrder['user']?.email }}</p>
+          <p><strong>الحالة:</strong> {{ selectedOrder.status | titlecase }}</p>
+          <p><strong>الإجمالي:</strong> {{ selectedOrder.total | currency:'EGP':'symbol' }}</p>
 
           <h6>العناصر</h6>
           <table class="table table-sm table-bordered">
@@ -68,7 +68,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of selectedOrder?.items">
+              <tr *ngFor="let item of selectedOrder.items">
                 <td>{{ item.name }}</td>
                 <td>{{ item.size }}</td>
                 <td>{{ item.quantity }}</td>
@@ -79,14 +79,14 @@
 
           <h6>عنوان الشحن</h6>
           <p>
-            {{ selectedOrder?.shippingAddress?.fullName }}<br>
-            {{ selectedOrder?.shippingAddress?.street }}, {{ selectedOrder?.shippingAddress?.city }}, {{ selectedOrder?.shippingAddress?.country }}<br>
-            الهاتف: {{ selectedOrder?.shippingAddress?.phone }}
+            {{ selectedOrder['shippingAddress']?.fullName }}<br>
+            {{ selectedOrder['shippingAddress']?.street }}, {{ selectedOrder['shippingAddress']?.city }}, {{ selectedOrder['shippingAddress']?.country }}<br>
+            الهاتف: {{ selectedOrder['shippingAddress']?.phone }}
           </p>
 
           <h6>الدفع</h6>
-          <p>طريقة الدفع: {{ selectedOrder?.payment?.method }}</p>
-          <p>ملاحظات: {{ selectedOrder?.payment?.notes || 'لا توجد' }}</p>
+          <p>طريقة الدفع: {{ selectedOrder['payment']?.method }}</p>
+          <p>ملاحظات: {{ selectedOrder['payment']?.notes || 'لا توجد' }}</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>

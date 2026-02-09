@@ -109,4 +109,14 @@ export class OrderService {
   getMyOrders(): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.apiUrl}/my`, this.getHeaders());
   }
+
+  /** ======================= Admin Operations ======================= */
+  getAllOrdersAdmin(): Observable<Order[]> {
+    // صححنا الرابط بحيث يطابق الباكند
+    return this.http.get<Order[]>(`${this.apiUrl}`, this.getHeaders());
+  }
+
+  updateOrderAdmin(orderId: string, updateData: Partial<Order>): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${orderId}/admin`, updateData, this.getHeaders());
+  }
 }

@@ -80,4 +80,12 @@ export class AuthService {
     localStorage.clear();
     this.tokenSubject.next(null);
   }
+  getAllUsers(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}`, {
+    headers: {
+      Authorization: `Bearer ${this.getToken() || ''}`
+    }
+  });
+}
+
 }

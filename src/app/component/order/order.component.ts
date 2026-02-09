@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { OrderService } from '../../services/order.service';
+import { OrderService, Order } from '../../services/order.service';
 import { CommonModule } from '@angular/common';
 declare var bootstrap: any; // لاستخدام Modal
 
@@ -11,8 +11,8 @@ declare var bootstrap: any; // لاستخدام Modal
 })
 export class OrderComponent implements OnInit {
 
-  orders: any[] = [];
-  selectedOrder: any = null;
+  orders: Order[] = [];
+  selectedOrder: Order | null = null;
 
   constructor(private orderService: OrderService) {}
 
@@ -22,19 +22,21 @@ export class OrderComponent implements OnInit {
 
   loadOrders() {
     this.orderService.getAllOrdersAdmin().subscribe({
-      next: (res: any) => this.orders = res.orders || res,
+      next: (res: any) => this.orders = res.orders || res, // backend بيرجع {success:true, orders: [...]}
       error: (err) => console.error(err)
     });
   }
 
-  viewOrder(order: any) {
+  viewOrder(order: Order) {
     this.selectedOrder = order;
     const modalEl = document.getElementById('orderModal');
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
   }
 
-  updateStatus(order: any, newStatus: string) {
+  updateStatus(order: Order, newStatus: string) {
     this.orderService.updateOrderAdmin(order._id, { status: newStatus }).subscribe({
       next: (res: any) => {
         this.loadOrders(); // إعادة تحميل الطلبات بعد التحديث
@@ -43,4 +45,3 @@ export class OrderComponent implements OnInit {
     });
   }
 }
-
