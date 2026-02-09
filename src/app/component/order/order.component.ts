@@ -1,18 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { OrderService, Order } from '../../services/order.service';
 import { CommonModule } from '@angular/common';
-declare var bootstrap: any; // لاستخدام Modal
+
+declare var bootstrap: any; // لاستخدام مكتبة Bootstrap JS
 
 @Component({
   selector: 'app-orders',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.css']
 })
 export class OrderComponent implements OnInit {
-
   orders: Order[] = [];
   selectedOrder: Order | null = null;
+  private modalInstance: any;
 
   constructor(private orderService: OrderService) {}
 
@@ -22,8 +24,10 @@ export class OrderComponent implements OnInit {
 
   loadOrders() {
     this.orderService.getAllOrdersAdmin().subscribe({
-      next: (res: any) => this.orders = res.orders || res, // backend بيرجع {success:true, orders: [...]}
-      error: (err) => console.error(err)
+      next: (res: any) => {
+        this.orders = res.orders || res;
+      },
+      error: (err) => console.error('Error fetching orders:', err)
     });
   }
 
@@ -31,17 +35,20 @@ export class OrderComponent implements OnInit {
     this.selectedOrder = order;
     const modalEl = document.getElementById('orderModal');
     if (modalEl) {
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
+      this.modalInstance = new bootstrap.Modal(modalEl);
+      this.modalInstance.show();
     }
   }
 
   updateStatus(order: Order, newStatus: string) {
     this.orderService.updateOrderAdmin(order._id, { status: newStatus }).subscribe({
-      next: (res: any) => {
-        this.loadOrders(); // إعادة تحميل الطلبات بعد التحديث
+      next: () => {
+        this.loadOrders();
+        if (this.modalInstance) {
+          this.modalInstance.hide();
+        }
       },
-      error: (err) => console.error(err)
+      error: (err) => alert('حدث خطأ أثناء تحديث الحالة')
     });
   }
 }

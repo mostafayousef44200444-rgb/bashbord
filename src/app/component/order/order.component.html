@@ -1,7 +1,12 @@
 <div class="container-fluid py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="page-title">إدارة الطلبات</h2>
-    <span class="badge bg-primary-soft text-primary">{{orders.length}} طلب إجمالي</span>
+    <div>
+      <h2 class="page-title mb-1">إدارة الطلبات</h2>
+      <p class="text-muted small">يمكنك متابعة وتحديث حالات طلبات العملاء من هنا.</p>
+    </div>
+    <span class="badge bg-primary-soft text-primary p-2 px-3">
+      <i class="bi bi-cart-check me-1"></i> {{orders.length}} طلبات
+    </span>
   </div>
 
   <div class="card table-card d-none d-lg-block">
@@ -11,38 +16,37 @@
           <tr>
             <th>#ID</th>
             <th>المستخدم</th>
-            <th>العناصر</th>
+            <th>المنتجات</th>
             <th>الإجمالي</th>
             <th>الحالة</th>
-            <th>التاريخ</th>
+            <th>تاريخ الإنشاء</th>
             <th class="text-center">إجراءات</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let order of orders">
-            <td class="text-truncate" style="max-width: 100px;">
-              <span class="fw-bold text-dark">#{{ order._id.slice(-6) }}</span>
-            </td>
+            <td><span class="fw-bold text-dark">#{{ order._id.slice(-6) }}</span></td>
             <td>
-              <div class="d-flex flex-column">
-                <span class="fw-medium">{{ order['user']?.email || 'N/A' }}</span>
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-2">{{ order['user']?.email?.[0].toUpperCase() }}</div>
+                <span>{{ order['user']?.email || 'N/A' }}</span>
               </div>
             </td>
-            <td><span class="item-count">{{ order.items.length }} منتجات</span></td>
+            <td><span class="items-badge">{{ order.items.length }} منتجات</span></td>
             <td class="fw-bold text-dark">{{ order.total | currency:'EGP':'symbol' }}</td>
             <td>
               <span class="status-badge" [ngClass]="order.status">
                 {{ order.status | titlecase }}
               </span>
             </td>
-            <td class="text-muted small">{{ order['createdAt'] | date:'shortDate' }}</td>
+            <td class="text-muted small">{{ order['createdAt'] | date:'mediumDate' }}</td>
             <td>
               <div class="d-flex justify-content-center gap-2">
-                <button class="action-btn view" (click)="viewOrder(order)" title="تفاصيل"><i class="bi bi-eye"></i></button>
-                <button class="action-btn process" (click)="updateStatus(order, 'processing')" [disabled]="order.status!=='pending'"><i class="bi bi-gear"></i></button>
-                <button class="action-btn ship" (click)="updateStatus(order, 'shipped')" [disabled]="order.status!=='processing'"><i class="bi bi-truck"></i></button>
-                <button class="action-btn deliver" (click)="updateStatus(order, 'delivered')" [disabled]="order.status!=='shipped'"><i class="bi bi-check-circle"></i></button>
-                <button class="action-btn cancel" (click)="updateStatus(order, 'cancelled')" [disabled]="order.status==='delivered' || order.status==='cancelled'"><i class="bi bi-x-circle"></i></button>
+                <button class="action-btn view" (click)="viewOrder(order)"><i class="bi bi-eye"></i></button>
+                <button class="action-btn process" (click)="updateStatus(order, 'processing')" [disabled]="order.status !== 'pending'"><i class="bi bi-gear"></i></button>
+                <button class="action-btn ship" (click)="updateStatus(order, 'shipped')" [disabled]="order.status !== 'processing'"><i class="bi bi-truck"></i></button>
+                <button class="action-btn deliver" (click)="updateStatus(order, 'delivered')" [disabled]="order.status !== 'shipped'"><i class="bi bi-check-circle"></i></button>
+                <button class="action-btn cancel" (click)="updateStatus(order, 'cancelled')" [disabled]="order.status === 'delivered' || order.status === 'cancelled'"><i class="bi bi-x-circle"></i></button>
               </div>
             </td>
           </tr>
@@ -58,51 +62,76 @@
         <span class="status-badge" [ngClass]="order.status">{{ order.status }}</span>
       </div>
       <div class="card-body-mobile">
-        <p><i class="bi bi-envelope me-2"></i> {{ order['user']?.email }}</p>
-        <p><i class="bi bi-cart me-2"></i> {{ order.items.length }} منتجات</p>
+        <p><i class="bi bi-person me-2"></i> {{ order['user']?.email }}</p>
+        <p><i class="bi bi-calendar3 me-2"></i> {{ order['createdAt'] | date:'short' }}</p>
         <p class="price-mobile">{{ order.total | currency:'EGP':'symbol' }}</p>
       </div>
       <div class="card-actions-mobile">
-        <button class="btn btn-sm btn-outline-primary" (click)="viewOrder(order)">التفاصيل</button>
-        <div class="dropdown">
-          <button class="btn btn-sm btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">تغيير الحالة</button>
-          <ul class="dropdown-menu">
-             <li><a class="dropdown-item" (click)="updateStatus(order, 'processing')">معالجة</a></li>
-             <li><a class="dropdown-item" (click)="updateStatus(order, 'shipped')">شحن</a></li>
+        <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="viewOrder(order)">التفاصيل</button>
+        <div class="dropdown flex-grow-1">
+          <button class="btn btn-sm btn-dark dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">تحديث الحالة</button>
+          <ul class="dropdown-menu shadow">
+             <li><a class="dropdown-item" (click)="updateStatus(order, 'processing')">قيد المعالجة</a></li>
+             <li><a class="dropdown-item" (click)="updateStatus(order, 'shipped')">تم الشحن</a></li>
              <li><a class="dropdown-item" (click)="updateStatus(order, 'delivered')">تم التسليم</a></li>
              <li><hr class="dropdown-divider"></li>
-             <li><a class="dropdown-item text-danger" (click)="updateStatus(order, 'cancelled')">إلغاء</a></li>
+             <li><a class="dropdown-item text-danger" (click)="updateStatus(order, 'cancelled')">إلغاء الطلب</a></li>
           </ul>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-
-<div class="modal-body p-4" *ngIf="selectedOrder">
-  <div class="row g-4">
-    <div class="col-md-6">
-      <h6 class="text-muted small text-uppercase mb-3">بيانات العميل</h6>
-      <div class="d-flex align-items-center gap-3 mb-2">
-        <div class="avatar-placeholder">{{selectedOrder['user']?.email?.[0].toUpperCase()}}</div>
-        <div>
-          <p class="mb-0 fw-bold">{{ selectedOrder['user']?.email }}</p>
-          <p class="mb-0 small text-muted">ID: {{selectedOrder._id}}</p>
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-0 bg-light">
+          <h5 class="modal-title fw-bold">تفاصيل الطلب #{{selectedOrder?._id?.slice(-6)}}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <h6 class="text-muted small text-uppercase mb-3">ملخص الحالة</h6>
-      <span class="status-badge" [ngClass]="selectedOrder.status">{{selectedOrder.status}}</span>
-      <p class="mt-2 fw-bold text-primary fs-5">{{ selectedOrder.total | currency:'EGP':'symbol' }}</p>
-    </div>
-    
-    <div class="col-12">
-      <h6 class="text-muted small text-uppercase mb-3">المنتجات المطلوبة</h6>
-      <div class="table-responsive bg-light rounded-3 p-2">
-        <table class="table table-sm mb-0">
-          </table>
+        <div class="modal-body p-4" *ngIf="selectedOrder">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <h6 class="text-muted small text-uppercase fw-bold mb-3">بيانات الشحن</h6>
+              <div class="p-3 border rounded-3 bg-light-soft">
+                <p class="mb-1 fw-bold">{{ selectedOrder['shippingAddress']?.fullName }}</p>
+                <p class="mb-1 small text-muted">{{ selectedOrder['shippingAddress']?.street }}, {{ selectedOrder['shippingAddress']?.city }}</p>
+                <p class="mb-0 small text-muted">هاتف: {{ selectedOrder['shippingAddress']?.phone }}</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-muted small text-uppercase fw-bold mb-3">الدفع والحالة</h6>
+              <div class="p-3 border rounded-3 bg-light-soft">
+                <p class="mb-1 small">طريقة الدفع: <strong>{{ selectedOrder['payment']?.method }}</strong></p>
+                <p class="mb-0">الحالة الحالية: <span class="status-badge" [ngClass]="selectedOrder.status">{{selectedOrder.status}}</span></p>
+              </div>
+            </div>
+            <div class="col-12">
+              <h6 class="text-muted small text-uppercase fw-bold mb-3">العناصر المطلوبة</h6>
+              <div class="table-responsive rounded-3 border">
+                <table class="table mb-0 small">
+                  <thead class="bg-light">
+                    <tr>
+                      <th>المنتج</th>
+                      <th class="text-center">الكمية</th>
+                      <th class="text-end">السعر</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of selectedOrder.items">
+                      <td>{{ item.name }} ({{item.size}})</td>
+                      <td class="text-center">{{ item.quantity }}</td>
+                      <td class="text-end fw-bold">{{ item.price | currency:'EGP':'symbol' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary rounded-3" data-bs-dismiss="modal">إغلاق</button>
+        </div>
       </div>
     </div>
   </div>
