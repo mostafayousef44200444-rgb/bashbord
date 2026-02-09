@@ -3,10 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
-  private apiUrl = 'http://localhost:8080/api/products';
+  private apiUrl = `${environment.apiUrl}/api/products`;
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
@@ -16,6 +17,7 @@ export class ProductService {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
+  /** ======================= Products CRUD ======================= */
   createProduct(formData: FormData): Observable<any> {
     if (!formData.has('sectionType')) {
       console.warn('⚠️ sectionType is missing in FormData');

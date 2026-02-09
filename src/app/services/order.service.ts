@@ -1,30 +1,40 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+// تعريف نوع المنتج في السلة
+export interface CartItem {
+  productId: string;
+  quantity: number;
+  size?: string;
+  name: string;
+  price: number;
+  image: string;
+}
+
+// تعريف نوع الطلب
+export interface Order {
+  _id: string;
+  items: CartItem[];
+  status?: string;
+  total?: number;
+  [key: string]: any;
+}
+
+@Injectable({ providedIn: 'root' })
 export class OrderService {
-  // رابط API الخاص بالطلبات
-  private apiUrl = 'http://localhost:8080/api/orders';
+  private apiUrl = `${environment.apiUrl}/api/orders`;
 
-  // BehaviorSubject لتتبع السلة محليًا
-  private cartSubject = new BehaviorSubject<any[]>([]);
+  private cartSubject = new BehaviorSubject<CartItem[]>([]);
   cart$ = this.cartSubject.asObservable();
 
-  constructor(
-    private http: HttpClient,
-    private auth: AuthService
-  ) {}
+  private cartCountSubject = new BehaviorSubject<number>(0);
+  cartCount$ = this.cartCountSubject.asObservable();
 
-  // تحديث السلة محليًا
-  setCart(items: any[]): void {
-    this.cartSubject.next(items);
-  }
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
-  // إعداد الـ Headers مع التوكن
   private getHeaders(): { headers: HttpHeaders } {
     const token = this.auth.getToken() || '';
     return {
@@ -35,123 +45,68 @@ export class OrderService {
     };
   }
 
-  // === طلبات المستخدم العادي ===
-
-  // جلب السلة الحالية (pending)
-  getCurrentOrder(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/my/current`, this.getHeaders());
+  /** ======================= Cart Management ======================= */
+  setCart(items: CartItem[]): void {
+    this.cartSubject.next(items);
+    this.updateCartCount(items);
   }
 
-  // جلب كل طلبات المستخدم
-  getMyOrders(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/my`, this.getHeaders());
+  private updateCartCount(items: CartItem[]): void {
+    const count = items.reduce((sum, i) => sum + (i.quantity || 0), 0);
+    this.cartCountSubject.next(count);
   }
 
-  // إنشاء سلة جديدة أو تحديثها
-  createOrder(order: any): Observable<any> {
-    const formattedOrder = {
-      products: order.products.map((p: any) => ({
-        productId: p.productId || p.product || '',
-        quantity: p.quantity || 1,
-        size: p.size || ''
-      }))
-    };
-    return this.http.post(this.apiUrl, formattedOrder, this.getHeaders());
+  loadCartCount(): void {
+    this.getCurrentOrder().subscribe({
+      next: (order: Order) => this.setCart(order?.items || []),
+      error: () => this.setCart([])
+    });
   }
 
-  // إضافة عنصر للسلة
-  addItemToCart(productId: string, quantity: number = 1, size: string = ''): Observable<any> {
-    return this.http.post(
-      `${this.apiUrl}/add-to-cart`,
-      { productId, quantity, size },
-      this.getHeaders()
+  getCurrentOrder(): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/my/current`, this.getHeaders()).pipe(
+      tap(order => this.setCart(order.items || []))
     );
   }
 
-  // إزالة عنصر من السلة
-  removeItemFromCart(productId: string): Observable<any> {
-    return this.http.delete(
-      `${this.apiUrl}/remove-from-cart/${productId}`,
-      this.getHeaders()
+  /** ======================= Cart Operations ======================= */
+  addItemToCart(productId: string, quantity: number = 1, size: string = ''): Observable<Order> {
+    return this.http.post<Order>(`${this.apiUrl}/add-to-cart`, { productId, quantity, size }, this.getHeaders()).pipe(
+      tap(order => this.setCart(order.items || []))
     );
   }
 
-  // تحديث كل السلة دفعة واحدة
-  updateCartItems(items: any[]): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/update-cart`,
-      { items },
-      this.getHeaders()
+  removeItemFromCart(productId: string): Observable<Order> {
+    return this.http.delete<Order>(`${this.apiUrl}/remove-from-cart/${productId}`, this.getHeaders()).pipe(
+      tap(order => this.setCart(order.items || []))
     );
   }
 
-  // تأكيد الطلب (تحويله من pending إلى processing)
-  confirmOrder(
-    orderId: string,
-    details: {
-      fullName: string;
-      phone: string;
-      city: string;
-      street: string;
-      country: string;
-      notes?: string;
-      paymentMethod: 'cash' | 'card';
-    }
-  ): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/${orderId}/confirm`,
-      details,
-      this.getHeaders()
+  updateProductQuantity(orderId: string, productId: string, quantity: number): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${orderId}/product/${productId}`, { quantity }, this.getHeaders()).pipe(
+      tap(order => this.setCart(order.items || []))
     );
   }
 
-  // === طلبات الأدمن ===
-
-  // جلب كل الطلبات (للأدمن)
-  getAllOrdersAdmin(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl, this.getHeaders());
-  }
-
-  // جلب طلب معين للأدمن (مع populate كامل)
-  getOrderForAdmin(orderId: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${orderId}/admin`, this.getHeaders());
-  }
-
-  // تحديث الطلب من الأدمن (كميات، حالة، شحن، ملاحظات)
-  updateOrderAdmin(orderId: string, updates: {
-    items?: any[];
-    status?: string;
-    shippingPrice?: number;
-    adminNote?: string;
-  }): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${orderId}/admin`, updates, this.getHeaders());
-  }
-
-  // تغيير حالة الطلب (إذا كان لديك route منفصل)
-  updateOrderStatus(orderId: string, newStatus: string): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/${orderId}/status`,
-      { status: newStatus },
-      this.getHeaders()
+  updateCartItems(items: CartItem[]): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/update-cart`, { items }, this.getHeaders()).pipe(
+      tap(order => this.setCart(order.items || items))
     );
   }
 
-  // إلغاء الطلب
-  cancelOrder(orderId: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${orderId}/cancel`, {}, this.getHeaders());
+  confirmOrder(orderId: string, details: {
+    fullName: string;
+    phone: string;
+    city: string;
+    street: string;
+    country: string;
+    paymentMethod: 'cash' | 'card';
+    notes?: string;
+  }): Observable<Order> {
+    return this.http.put<Order>(`${this.apiUrl}/${orderId}/confirm`, details, this.getHeaders());
   }
 
-  // حذف الطلب نهائيًا
-  deleteOrder(orderId: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${orderId}`, this.getHeaders());
-  }
-
-  // تحديث كمية منتج معين داخل الطلب
-  updateProductQuantity(orderId: string, productId: string, quantity: number): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/${orderId}/product/${productId}`,
-      { quantity },
-      this.getHeaders()
-    );
+  getMyOrders(): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.apiUrl}/my`, this.getHeaders());
   }
 }

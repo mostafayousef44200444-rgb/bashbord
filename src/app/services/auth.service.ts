@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../environments/environment';
+
+
 
 interface TokenPayload {
   id: string;
@@ -10,11 +13,8 @@ interface TokenPayload {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  
-  private readonly BASE_URL = 'http://localhost:8080';  
-  
-
-  private apiUrl = `${this.BASE_URL}/api/users`;
+  // رابط الباك اند من environment
+  private apiUrl = `${environment.apiUrl}/api/users`;
 
   private tokenSubject = new BehaviorSubject<string | null>(localStorage.getItem('token'));
 
@@ -80,8 +80,4 @@ export class AuthService {
     localStorage.clear();
     this.tokenSubject.next(null);
   }
-  getAllUsers(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}`);
-}
-
 }
