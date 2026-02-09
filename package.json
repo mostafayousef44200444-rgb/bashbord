@@ -2,11 +2,12 @@
   "name": "bashbord",
   "version": "0.0.0",
   "scripts": {
-    "start": "ng serve",
-   "build": "ng build --output-path=dist/bashbord/browser",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
-  },
+  "start": "ng serve",
+  "build": "ng build --configuration production",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test"
+}
+,
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.2.0",
